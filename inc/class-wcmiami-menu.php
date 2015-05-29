@@ -37,9 +37,11 @@ class WCMIAMI_Menu {
 
 	public static function getting_menu_items( $sub_menu_items, $item_title ) {
 
+		$hash = md5( $item_title );
+
 		// trans start
 		// never leave the $_GET['dev'] check in on production
-		if ( ! empty( $_GET['dev'] ) || false === ( $post_ids = get_transient( 'menu_post_ids_' . md5( $item_title ) ) ) ) {
+		if ( ! empty( $_GET['dev'] ) || false === ( $post_ids = get_transient( 'post_ids_' . $hash ) ) ) {
 
 			$post_ids = array();
 
@@ -79,9 +81,10 @@ class WCMIAMI_Menu {
 
 			} // end foreach submenu items
 
+			// Removing duplicate posts
+			$post_ids = array_unique( $post_ids );
 			// 5 min caching
-
-			set_transient( 'menu_post_ids_' . md5( $item_title ), array_unique( $post_ids ), 300 );
+			set_transient( 'post_ids_' . $hash, $post_ids, 300 );
 		}
 		//trans end
 		return $post_ids;
